@@ -1,3 +1,5 @@
+package server;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +25,7 @@ public class MyServer {
 
     public void await(){
         ServerSocket serverSocket = null;
-        int port = 80;
+        int port = 8080;
         try {
             serverSocket = new ServerSocket(port, 1, InetAddress.getByName("127.0.0.1"));
 
@@ -31,16 +33,33 @@ public class MyServer {
             e.printStackTrace();
             System.exit(1);
         }
-
         while (!shutdown){
             Socket socket = null;
             InputStream input = null;
-            OutputStream ouput = null;
+            OutputStream output = null;
 
-            Request request = new Request(input);
-            request.parse();
+            try{
+                socket = serverSocket.accept();
+                input = socket.getInputStream();
+                output = socket.getOutputStream();
 
+                // create  a server.Request Object and parse it
+                Request request = new Request(input);
+                request.parse();
 
+                //create server.Response object
+                Response response = new Response(output);
+                response.setRequest(request);
+                response.sendStaticResource();
+
+                //关闭 socket
+                socket.close();
+
+                shutdown = request.getUri().equals(SHUTDOWN_COMMAND);
+            }catch (Exception e){
+                e.printStackTrace();
+                continue;
+            }
         }
     }
 }
