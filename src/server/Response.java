@@ -25,14 +25,26 @@ public class Response {
         FileInputStream fis = null;
         try{
             File file = new File(MyServer.WEB_ROOT, request.getUri());
+            System.out.println("Request Uri:" + request.getUri());
             System.out.println("Webroot = " + MyServer.WEB_ROOT);
+            System.out.println("File Exist : " + file.exists());
+            System.out.println(file.length());
+
+            String message = "HTTP/1.1 200 OK\r\n" +
+                    "Content-type: text/html\r\n" +
+                    "Content-Length: 14\r\n" +
+                    "\r\n" +
+                    "<h1>hahah</h1>";
+
             if(file.exists()){
                 fis = new FileInputStream(file);
                 int ch = fis.read(bytes, 0, BUFFER_SIZE);
                 while (ch != -1){
+                    System.out.println("file output ......." + bytes.toString());
                     output.write(bytes, 0, ch);
                     ch = fis.read(bytes, 0, BUFFER_SIZE);
                 }
+                //output.write(message.getBytes());
             }else{
                 //文件不存在
                 String errorMessage = "HTTP/1.1 404 File Not Found\r\n" +
